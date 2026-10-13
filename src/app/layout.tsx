@@ -1,68 +1,98 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
-import { Header } from "@/components/shared/header";
+import { Lora, Be_Vietnam_Pro, Roboto_Mono } from "next/font/google";
+import { ReactLenis } from "lenis/react";
+import { FilmGrainOverlay } from "@/components/cinematic/FilmGrainOverlay";
+import { AudioProvider } from "@/context/AudioContext";
+import { StickyCassettePlayer } from "@/components/cinematic/StickyCassettePlayer";
+import { Navbar } from "@/components/shared/header";
 import { Footer } from "@/components/shared/footer";
-import { Providers } from "@/components/shared/providers";
+import { getLayoutData } from "@/lib/markdown";
+import "lenis/dist/lenis.css";
 import "@/styles/globals.css";
 
-const inter = Inter({
-  subsets: ["latin", "vietnamese"],
-  variable: "--font-sans",
+// Font Serif cổ điển hỗ trợ 100% tiếng Việt chuẩn xác cho tiêu đề "Hòn Ngọc Viễn Đông" và chữ in báo xưa
+const lora = Lora({
+  subsets: ["vietnamese", "latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-lora",
+  display: "swap",
+});
+
+// Font Sans chuyên biệt cho tiếng Việt (Be Vietnam Pro) chuẩn xác dấu thanh
+const beVietnamPro = Be_Vietnam_Pro({
+  subsets: ["vietnamese", "latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  style: ["normal", "italic"],
+  variable: "--font-be-vietnam-pro",
+  display: "swap",
+});
+
+// Font Monospace / Máy đánh chữ công văn hỗ trợ 100% tiếng Việt (Roboto Mono)
+const robotoMono = Roboto_Mono({
+  subsets: ["vietnamese", "latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-roboto-mono",
   display: "swap",
 });
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#090d16" },
-  ],
+  themeColor: "#1a1614",
+  colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
 };
 
 export const metadata: Metadata = {
   title: {
-    default: "Next.js Production Enterprise Template",
-    template: "%s | Next.js Template",
+    default: "Jye's Portfolio",
+    template: "%s | Jye's Portfolio",
   },
   description:
-    "Next.js 15+ App Router, React 19, TypeScript Strict, Tailwind CSS v4, Radix UI, TanStack Query, Nuqs, và Server Actions.",
-  keywords: ["Next.js 15", "React 19", "Tailwind CSS v4", "TypeScript", "App Router", "Shadcn UI", "TanStack Query", "Nuqs"],
-  authors: [{ name: "Next.js Architect" }],
-  openGraph: {
-    type: "website",
-    locale: "vi_VN",
-    url: "https://github.com/Jye-a-dev/template_next_client",
-    title: "Next.js Production Enterprise Template",
-    description: "Template Next.js App Router tối ưu hiệu năng Web Vitals (LCP, CLS, INP) và UI/UX cao cấp.",
-    siteName: "Next.js Template",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Next.js Production Enterprise Template",
-    description: "Template Next.js App Router tối ưu hiệu năng Web Vitals (LCP, CLS, INP) và UI/UX cao cấp.",
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
+    "Jye's Portfolio – Hồi ký Tem Phiếu & Hòn Ngọc Viễn Đông. Không gian số lưu giữ ký ức ba miền và kiến trúc phần mềm cao cấp.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const layoutData = await getLayoutData();
+
   return (
-    <html lang="vi" suppressHydrationWarning className={inter.variable}>
-      <body className="min-h-screen bg-background font-sans text-foreground antialiased flex flex-col">
-        <Providers>
-          <Header />
-          <main className="flex-1 flex flex-col">{children}</main>
-          <Footer />
-        </Providers>
+    <html
+      lang="vi"
+      className={`dark ${beVietnamPro.variable} ${lora.variable} ${robotoMono.variable}`}
+    >
+      <body className="relative min-h-screen bg-baocap-sepia font-sans text-baocap-paper antialiased selection:bg-baocap-brick/40 selection:text-baocap-paper">
+        <ReactLenis
+          root
+          options={{
+            lerp: 0.08,
+            duration: 1.2,
+            smoothWheel: true,
+          }}
+        >
+          <AudioProvider
+            initialTracks={layoutData?.cassette?.tracks}
+            defaultVolume={layoutData?.cassette?.default_volume}
+          >
+            {/* Lớp phủ hạt nhiễu phim & vết ố báo cũ (60fps optimized) */}
+            <FilmGrainOverlay />
+
+            {/* Khung layout bao gồm Navbar, Main Content và Footer */}
+            <div className="relative z-10 flex min-h-screen flex-col">
+              <Navbar items={layoutData?.navbar} />
+              <main className="flex-1">{children}</main>
+              <Footer data={layoutData?.footer} navItems={layoutData?.navbar} />
+            </div>
+
+            {/* Widget đài Cassette cố định góc màn hình */}
+            <StickyCassettePlayer />
+          </AudioProvider>
+        </ReactLenis>
       </body>
     </html>
   );
 }
-

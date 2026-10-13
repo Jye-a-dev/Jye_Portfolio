@@ -2,52 +2,70 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.625rem;
+    --background: 26 12% 9%; /* #1a1614 - Nâu sepia giấy bồi */
+    --foreground: 41 33% 83%; /* #e2d8c3 - Trắng ngà giấy báo */
+    --card: 26 12% 12%;
+    --card-foreground: 41 33% 83%;
+    --popover: 26 12% 12%;
+    --popover-foreground: 41 33% 83%;
+    --primary: 41 60% 61%; /* #d8b15d - Vàng ố tem phiếu */
+    --primary-foreground: 26 12% 9%;
+    --secondary: 111 11% 13%; /* #1f261e - Xanh bộ đội sẫm */
+    --secondary-foreground: 41 33% 83%;
+    --muted: 26 12% 16%;
+    --muted-foreground: 36 15% 60%;
+    --accent: 10 63% 40%; /* #a83c27 - Đỏ gạch nung / Đỏ cờ */
+    --accent-foreground: 41 33% 83%;
+    --destructive: 10 63% 40%;
+    --destructive-foreground: 41 33% 83%;
+    --border: 33 18% 22%;
+    --input: 33 18% 22%;
+    --ring: 41 60% 61%;
+    --radius: 0.25rem;
+
+    --font-sans: var(--font-be-vietnam-pro), "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-serif: var(--font-lora), "Lora", Georgia, serif;
+    --font-mono: var(--font-roboto-mono), "Roboto Mono", monospace;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --background: 26 12% 9%;
+    --foreground: 41 33% 83%;
+    --card: 26 12% 12%;
+    --card-foreground: 41 33% 83%;
+    --popover: 26 12% 12%;
+    --popover-foreground: 41 33% 83%;
+    --primary: 41 60% 61%;
+    --primary-foreground: 26 12% 9%;
+    --secondary: 111 11% 13%;
+    --secondary-foreground: 41 33% 83%;
+    --muted: 26 12% 16%;
+    --muted-foreground: 36 15% 60%;
+    --accent: 10 63% 40%;
+    --accent-foreground: 41 33% 83%;
+    --destructive: 10 63% 40%;
+    --destructive-foreground: 41 33% 83%;
+    --border: 33 18% 22%;
+    --input: 33 18% 22%;
+    --ring: 41 60% 61%;
   }
 }
 
 @theme inline {
+  --font-sans: var(--font-be-vietnam-pro), "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: var(--font-lora), "Lora", Georgia, serif;
+  --font-mono: var(--font-roboto-mono), "Roboto Mono", monospace;
+
+  --color-baocap-green: #1f261e;
+  --color-baocap-sepia: #1a1614;
+  --color-baocap-yellow: #d8b15d;
+  --color-baocap-brick: #a83c27;
+  --color-baocap-paper: #e2d8c3;
+  --color-baocap-ink: #181512;
+  --color-baocap-moss: #7e8871;
+  --color-baocap-teal: #1b5e52;
+  --color-baocap-crimson: #961e25;
+
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
@@ -72,6 +90,67 @@
   --radius-sm: calc(var(--radius) - 4px);
 }
 
+@keyframes typewriter-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Mỹ học Thời Bao Cấp: Viền răng cưa tem phiếu / sổ gạo */
+.ration-stamp-border {
+  position: relative;
+  background-color: #e2d8c3;
+  color: #181512;
+  border: 2px dashed #a39274;
+  box-shadow: 4px 4px 0px #1a1614;
+}
+
+/* Dấu mộc đỏ cao su hành chính thời chiến */
+.stamp-seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2.5px double #a83c27;
+  color: #a83c27;
+  font-family: var(--font-mono, monospace);
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transform: rotate(-15deg);
+  padding: 0.2rem 0.6rem;
+  user-select: none;
+}
+
+/* Nút phím cơ học máy đánh chữ (Typewriter brutalist button) */
+.typewriter-btn {
+  background-color: #e2d8c3;
+  color: #181512;
+  border: 2px dashed #181512;
+  box-shadow: 4px 4px 0px #181512;
+  transition: all 0.12s ease-in-out;
+}
+.typewriter-btn:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #a83c27;
+  border-color: #a83c27;
+  color: #a83c27;
+}
+.typewriter-btn:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0px #a83c27;
+}
+
+/* Ngăn kéo tủ cán bộ hồ sơ */
+.cabinet-drawer {
+  background-color: #211c19;
+  border: 1px solid #3d342d;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+}
+.cabinet-drawer:hover {
+  transform: translateY(-4px);
+  border-color: #d8b15d;
+}
+
 * {
   border-color: hsl(var(--border));
   box-sizing: border-box;
@@ -82,11 +161,11 @@ html {
 }
 
 body {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
+  font-family: var(--font-sans), "Be Vietnam Pro", sans-serif;
+  background-color: #1a1614;
+  color: #e2d8c3;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
