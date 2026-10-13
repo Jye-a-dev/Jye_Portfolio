@@ -10,11 +10,11 @@ navbar: [
   { label: "Trang Chủ", href: "/" },
   { label: "Hồ Sơ Dự Án", href: "/projects" },
   { label: "Kinh Nghiệm", href: "/experiences" },
-  { label: "Giới Thiệu", href: "/about/index" },
+  { label: "Giới Thiệu", href: "/about/jye" },
   { label: "Liên Hệ", href: "/contact/index" }
 ]
 cassette: {
-  default_volume: 0.8,
+  default_volume: 0.2,
   tracks: [
     { id: "track-1", title: "Màn 1: Hoài Niệm Disco", subtitle: "Intro – Giấc mơ ánh đèn vũ hội", artist: "ABBA Nostalgia Tape", src: "/media/audio/intro-abba.mp3", stage: "intro" },
     { id: "track-2", title: "Màn 2: Dạ Vũ Phố Đèn Dầu", subtitle: "Body – Tiếng mưa bóng đèn huỳnh quang", artist: "Nhạc Việt Thập Niên 90", src: "/media/audio/body-viet90s.mp3", stage: "body" },

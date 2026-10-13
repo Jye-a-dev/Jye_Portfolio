@@ -115,7 +115,7 @@ export default async function DocumentDetailPage({ params }: PageProps) {
       style={{
         backgroundColor: pageBgColor,
         color: pageTextColor,
-      }}
+      }} 
     >
       {/* Background tùy chỉnh từ Markdown frontmatter */}
       <PageBackground background={metadata.background} />

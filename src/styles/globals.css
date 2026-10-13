@@ -144,12 +144,46 @@
   background-color: #211c19;
   border: 1px solid #3d342d;
   box-shadow: 0 10px 25px rgba(0,0,0,0.6);
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
 }
 .cabinet-drawer:hover {
-  transform: translateY(-4px);
+  transform: translate3d(0, -6px, 0);
   border-color: #d8b15d;
+  box-shadow: 0 16px 32px rgba(0,0,0,0.85);
 }
+.cabinet-drawer:active {
+  transform: translate3d(0, -1px, 0);
+}
+
+/* Tránh lặp đều bằng 2 kích thước layer khác nhau, blend sậm màu (multiply/color-burn) */
+.paper-kraft-texture {
+  background-color: #e2d8c3;
+  background-image: 
+    url('/noise.png'), 
+    url('/noise.png'),
+    radial-gradient(ellipse at 15% 20%, rgba(216, 177, 93, 0.45) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 85%, rgba(180, 130, 60, 0.35) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% -10%, rgba(130, 100, 50, 0.15) 0%, transparent 60%);
+  background-size: 128px 128px, 333px 333px, auto, auto, auto;
+  background-position: 0 0, 15px 25px, 0 0, 0 0, 0 0;
+  background-blend-mode: multiply, normal, normal, normal, normal;
+  box-shadow: inset 0 0 120px rgba(26, 22, 20, 0.4); /* Cháy mép vignette */
+}
+
+/* Kiểu chữ in, bảng hiệu kẻ tay thời bao cấp sần sùi */
+.font-stencil-sub {
+  font-family: var(--font-serif), 'Playfair Display', Georgia, serif;
+}
+.font-hand-title {
+  font-family: var(--font-sans), 'Impact', 'Arial Black', sans-serif;
+  letter-spacing: -0.02em;
+}
+.font-typewriter {
+  font-family: var(--font-mono), 'Courier New', Courier, monospace;
+}
+
 
 * {
   border-color: hsl(var(--border));
