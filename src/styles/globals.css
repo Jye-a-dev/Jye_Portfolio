@@ -205,3 +205,91 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* ========================================================
+   CINEMATIC FILM ARCHIVE & NEON NOIR STYLES
+   ======================================================== */
+@keyframes neon-startup-flicker {
+  0% {
+    opacity: 0.2;
+    text-shadow: none;
+  }
+  3% {
+    opacity: 1;
+    text-shadow: 0 0 4px #ffffff, 0 0 12px var(--neon-glow, #00e5ff), 0 0 25px var(--neon-glow, #00e5ff);
+  }
+  6% {
+    opacity: 0.35;
+    text-shadow: none;
+  }
+  10% {
+    opacity: 1;
+    text-shadow: 0 0 4px #ffffff, 0 0 14px var(--neon-glow, #00e5ff), 0 0 30px var(--neon-glow, #00e5ff), 0 0 50px var(--neon-glow, #00e5ff);
+  }
+  14% {
+    opacity: 0.75;
+    text-shadow: 0 0 2px #ffffff, 0 0 8px var(--neon-glow, #00e5ff);
+  }
+  18%, 100% {
+    opacity: 1;
+    text-shadow: 
+      0 0 4px #ffffff,
+      0 0 10px #ffffff,
+      0 0 20px var(--neon-glow, #00e5ff),
+      0 0 40px var(--neon-glow, #00e5ff),
+      0 0 70px var(--neon-glow, #00e5ff);
+  }
+}
+
+.neon-marquee-title {
+  animation: neon-startup-flicker 1.8s ease-out forwards;
+}
+
+.crt-scanlines {
+  background: linear-gradient(
+    rgba(18, 16, 14, 0) 50%, 
+    rgba(0, 0, 0, 0.45) 50%
+  );
+  background-size: 100% 4px;
+}
+
+.film-sprocket-track {
+  background-image: radial-gradient(#141210 2.5px, transparent 3px);
+  background-size: 14px 14px;
+}
+
+/* ========================================================
+   CUỘN PHIM NHỰA 35MM (Authentic 35mm Film Strip Rails)
+   ======================================================== */
+.film-strip-sprockets {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='16' viewBox='0 0 26 16'%3E%3Crect x='6' y='2' width='14' height='12' rx='2.5' fill='%23e2d8c3' opacity='0.75'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-position: left center;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes film-strip-in {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.animate-film-strip {
+  animation: film-strip-in 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+
+
+

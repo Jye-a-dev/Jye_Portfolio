@@ -291,7 +291,7 @@ export default async function HomePage() {
                   {/* Ô ấn mộc riêng: Không che đè bất kỳ object nào */}
                   <div className="relative flex min-h-13.5 w-full items-center justify-center rounded-xs border border-dashed border-[#a39274]/50 bg-baocap-sepia/20 px-3 py-2 transition-colors duration-300 group-hover:border-[#facc15]/40 group-hover:bg-baocap-sepia/50">
                     {/* Nhãn placeholder thời bao cấp trước khi hover */}
-                    <span className="font-typewriter font-mono text-[9px] font-semibold uppercase tracking-widest text-[#8c785b]/70 transition-opacity duration-300 group-hover:opacity-0 [text-shadow:0px_1px_0px_rgba(255,255,255,0.4)]">
+                    <span className="font-typewriter font-mono text-[9px] font-semibold uppercase tracking-widest text-[#5d3802]/70 transition-opacity duration-300 group-hover:opacity-0 [text-shadow:0px_1px_0px_rgba(255,255,255,0.4)]">
                       [ NƠI ĐÓNG DẤU KIỂM DUYỆT ]
                     </span>
 

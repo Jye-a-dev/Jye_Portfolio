@@ -32,7 +32,7 @@ distribution_stations:
       year: "1976"
       accent_color: "#d8b15d"
       image: "/img/hanoi.webp"
-      href: "/experiences"
+      href: "/projects"
     - code: "TRẠM ĂNG-TEN 02 - NGOÀI TRUNG"
       title: "Huế – Thành Quách Đề-Mốt & Sông Hương Mù Sương"
       stamp_seal: "Duyệt rồi"
