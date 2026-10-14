@@ -1,10 +1,12 @@
 import fs from "fs/promises";
 import path from "path";
 import Link from "next/link";
+import Image from "next/image";
 import matter from "gray-matter";
 import { MDXRemote } from "next-mdx-remote/rsc";
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface HomeBackground {
   color?: string;
@@ -38,6 +40,7 @@ interface HomeStation {
   description: string;
   year: string;
   accent_color: string;
+  image?: string;
   href: string;
 }
 
@@ -71,28 +74,35 @@ interface HomePageData {
 
 /**
  * Đọc toàn bộ cấu hình trang chủ trực tiếp từ file Markdown qua gray-matter
+ * Luôn đọc file có thời gian chỉnh sửa mới nhất (mtime) giữa content/pages/home.md và content/home.md
  */
 async function getHomeDocument(): Promise<{ data: HomePageData; content: string }> {
   const contentDir = path.join(process.cwd(), "content");
   const candidates = [
-    path.join(contentDir, "home.md"),
     path.join(contentDir, "pages", "home.md"),
+    path.join(contentDir, "home.md"),
   ];
 
-  let rawContent: string | null = null;
+  let targetPath: string | null = null;
+  let latestMtime = -1;
+
   for (const candidate of candidates) {
     try {
-      rawContent = await fs.readFile(candidate, "utf-8");
-      break;
+      const stat = await fs.stat(candidate);
+      if (stat.mtimeMs > latestMtime) {
+        latestMtime = stat.mtimeMs;
+        targetPath = candidate;
+      }
     } catch {
-      // Tiếp tục tìm trong danh sách fallback
+      // Bỏ qua nếu file không tồn tại
     }
   }
 
-  if (!rawContent) {
+  if (!targetPath) {
     throw new Error("Không thể định vị file nội dung home.md trong thư mục content/");
   }
 
+  const rawContent = await fs.readFile(targetPath, "utf-8");
   const { data, content } = matter(rawContent);
   return {
     data: data as HomePageData,
@@ -199,10 +209,10 @@ export default async function HomePage() {
       <section className="mx-auto my-16 max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 flex flex-wrap items-end justify-between border-b-2 border-[#3d342d] pb-4">
           <div>
-            <span className="font-typewriter font-mono text-xs font-bold tracking-widest text-baocap-brick uppercase">
+            <span className="font-typewriter font-mono text-xs font-bold tracking-widest text-baocap-brick uppercase [text-shadow:1px_1px_0px_rgba(26,22,20,0.4)]">
               {distribution_stations.section_title}
             </span>
-            <h2 className="mt-1 font-serif text-2xl font-bold text-baocap-yellow sm:text-3xl">
+            <h2 className="mt-1 font-serif text-2xl font-bold text-baocap-yellow sm:text-3xl [text-shadow:2px_2px_0px_#1a1614,3px_3px_0px_#26201b,4px_4px_6px_rgba(0,0,0,0.6)]">
               {distribution_stations.section_subtitle}
             </h2>
           </div>
@@ -213,41 +223,96 @@ export default async function HomePage() {
             <Link
               key={index}
               href={station.href}
-              className="group ration-stamp-border relative block p-6 transition-all duration-300 hover:border-baocap-brick hover:shadow-[6px_6px_0px_#a83c27] will-change-transform transform-gpu hover:-translate-y-1.5"
-              style={{
-                borderLeftColor: station.accent_color,
-                borderLeftWidth: "4px",
-              }}
+              className="group ration-stamp-border relative block overflow-hidden p-6 transition-all duration-300 hover:border-baocap-brick hover:shadow-[6px_6px_0px_#a83c27] will-change-transform transform-gpu hover:-translate-y-1.5"
+              style={
+                {
+                  borderLeftColor: station.accent_color,
+                  borderLeftWidth: "4px",
+                  "--station-accent": station.accent_color,
+                } as React.CSSProperties
+              }
             >
-              {/* Dấu mực mộc đỏ rực dán đè nghiêng 15 độ hiện ra khi hover */}
-              <div className="pointer-events-none absolute top-4 right-4 z-20 max-w-[70%] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                <span className="stamp-seal text-[9px] leading-tight text-center">
-                  {station.stamp_seal}
-                </span>
-              </div>
+              {/* Lớp hiển thị ảnh Cinematic Reveal khi hover */}
+              {station.image && (
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+                >
+                  {/* Ảnh Next.js .webp tối ưu: grayscale ngả chìm, scale 1.05 -> 1.0, opacity 0 -> 1 */}
+                  <Image
+                    src={station.image}
+                    alt={station.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover grayscale contrast-110 brightness-95 opacity-0 scale-105 transition-[transform,opacity] duration-700 ease-out will-change-[transform,opacity] transform-gpu group-hover:scale-100 group-hover:opacity-90 group-hover:grayscale-0 mix-blend-multiply"
+                  />
 
-              {/* Mã trạm & niên khóa */}
-              <div className="mb-3 flex items-center justify-between border-b border-dashed border-[#a39274] pb-2 font-typewriter font-mono text-[11px] font-bold text-[#8c785b]">
-                <span>{station.code}</span>
-                <span>{station.year}</span>
-              </div>
+                  {/* Lớp ám màu điện ảnh (Sepia / Xanh rêu / Đỏ) hòa trộn multiply vào nền giấy */}
+                  <div
+                    className="absolute inset-0 opacity-0 transition-opacity duration-700 ease-out mix-blend-multiply group-hover:opacity-80"
+                    style={{ backgroundColor: "var(--station-accent)" }}
+                  />
 
-              {/* Tiêu đề trạm */}
-              <h3 className="font-serif text-lg font-bold text-baocap-ink transition-colors group-hover:text-baocap-brick">
-                {station.title}
-              </h3>
+                  {/* Lớp phủ phụ mix-blend-overlay tạo độ đằm màu điện ảnh và giữ chất giấy sần */}
+                  <div
+                    className="absolute inset-0 opacity-0 transition-opacity duration-700 ease-out mix-blend-overlay group-hover:opacity-35"
+                    style={{ backgroundColor: "var(--station-accent)" }}
+                  />
 
-              {/* Mô tả chi tiết trạm */}
-              <p className="mt-3 font-serif text-xs text-[#3d342d] leading-relaxed">
-                {station.description}
-              </p>
+                  {/* Gradient điện ảnh tối dần về đáy bảo đảm độ sắc nét và tương phản tuyệt đối cho văn bản */}
+                  <div className="absolute inset-0 bg-linear-to-t from-[#141210] via-baocap-sepia/75 to-transparent opacity-0 transition-opacity duration-700 ease-out group-hover:opacity-90" />
+                </div>
+              )}
 
-              {/* Dải chân tem hướng dẫn mở */}
-              <div className="mt-6 flex items-center justify-between border-t border-dashed border-[#a39274] pt-2 font-typewriter font-mono text-[10px] text-[#8c785b]">
-                <span>{station.href}</span>
-                <span className="text-baocap-brick transition-transform duration-200 group-hover:translate-x-1">
-                  →
-                </span>
+              {/* Lớp nội dung Text phía trên: Nâng z-index và chia làm 2 phần (thông tin trên, ô đóng dấu & chân tem dưới) */}
+              <div className="relative z-10 flex h-full flex-col justify-between">
+                <div>
+                  {/* Mã trạm & niên khóa: 3D deboss dập chìm trên giấy kraft -> 3D nổi khối khi hover */}
+                  <div className="mb-3 flex items-center justify-between border-b border-dashed border-[#a39274] pb-2 font-typewriter font-mono text-[11px] font-bold text-[#8c785b] transition-all duration-300 group-hover:border-baocap-paper/40 group-hover:text-baocap-paper/80 [text-shadow:0px_1px_0px_rgba(255,255,255,0.6)] group-hover:[text-shadow:1px_1px_0px_#141210,2px_2px_2px_rgba(0,0,0,0.8)]">
+                    <span>{station.code}</span>
+                    <span className="transition-all duration-300 group-hover:text-baocap-yellow group-hover:[text-shadow:1px_1px_0px_#141210,2px_2px_0px_#26201b]">
+                      {station.year}
+                    </span>
+                  </div>
+
+                  {/* Tiêu đề trạm: Chữ 3D đúc nổi đa tầng (Multi-layered 3D Extrusion) */}
+                  <h3 className="font-serif text-lg font-bold text-baocap-ink transition-all duration-300 group-hover:text-[#f4ede2] [text-shadow:1px_1px_0px_rgba(255,255,255,0.7),2px_2px_0px_rgba(255,255,255,0.3)] group-hover:[text-shadow:1px_1px_0px_#141210,2px_2px_0px_#26201b,3px_3px_0px_#000,4px_4px_6px_rgba(0,0,0,0.9)]">
+                    {station.title}
+                  </h3>
+
+                  {/* Mô tả chi tiết trạm: Chiều sâu quang học (Optical Depth) */}
+                  <p className="mt-3 font-serif text-xs text-[#3d342d] leading-relaxed transition-all duration-300 group-hover:text-baocap-paper/90 [text-shadow:0px_1px_0px_rgba(255,255,255,0.5)] group-hover:[text-shadow:1px_1px_2px_rgba(0,0,0,0.95),0px_0px_1px_rgba(0,0,0,0.9)]">
+                    {station.description}
+                  </p>
+                </div>
+
+                {/* Phần đáy thẻ: Ô ấn mộc riêng biệt và dải điều hướng */}
+                <div className="mt-6">
+                  {/* Ô ấn mộc riêng: Không che đè bất kỳ object nào */}
+                  <div className="relative flex min-h-13.5 w-full items-center justify-center rounded-xs border border-dashed border-[#a39274]/50 bg-baocap-sepia/20 px-3 py-2 transition-colors duration-300 group-hover:border-[#facc15]/40 group-hover:bg-baocap-sepia/50">
+                    {/* Nhãn placeholder thời bao cấp trước khi hover */}
+                    <span className="font-typewriter font-mono text-[9px] font-semibold uppercase tracking-widest text-[#8c785b]/70 transition-opacity duration-300 group-hover:opacity-0 [text-shadow:0px_1px_0px_rgba(255,255,255,0.4)]">
+                      [ NƠI ĐÓNG DẤU KIỂM DUYỆT ]
+                    </span>
+
+                    {/* Dấu mực mộc vàng sáng đóng vào ô riêng: Hiệu ứng 3D dập nổi mộc đỏ/vàng trên giấy */}
+                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 scale-90 -rotate-6 transition-[transform,opacity] duration-300 ease-out will-change-transform transform-gpu group-hover:scale-105 group-hover:-rotate-10 group-hover:opacity-100">
+                      <span className="stamp-seal rounded-md border-[#facc15] text-[#facc15] text-[9px] leading-tight text-center max-w-[95%] [text-shadow:1px_1px_0px_#141210,2px_2px_0px_#000,3px_3px_4px_rgba(0,0,0,0.9)] shadow-[2px_2px_0px_#141210,4px_4px_8px_rgba(0,0,0,0.7)]">
+                        {station.stamp_seal}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Dải chân tem hướng dẫn mở */}
+                  <div className="mt-3 flex items-center justify-between border-t border-dashed border-[#a39274] pt-2 font-typewriter font-mono text-[10px] text-[#8c785b] transition-all duration-300 group-hover:border-baocap-paper/40 group-hover:text-baocap-paper/80 [text-shadow:0px_1px_0px_rgba(255,255,255,0.4)] group-hover:[text-shadow:1px_1px_0px_#141210,2px_2px_2px_rgba(0,0,0,0.8)]">
+                    <span className="transition-all duration-300 group-hover:text-baocap-paper group-hover:[text-shadow:1px_1px_0px_#141210]">
+                      {station.href}
+                    </span>
+                    <span className="text-baocap-brick transition-all duration-300 group-hover:translate-x-1.5 group-hover:text-baocap-yellow [text-shadow:1px_1px_0px_rgba(0,0,0,0.2)] group-hover:[text-shadow:1px_1px_0px_#141210,2px_2px_0px_#26201b,3px_3px_4px_rgba(0,0,0,0.9)]">
+                      →
+                    </span>
+                  </div>
+                </div>
               </div>
             </Link>
           ))}

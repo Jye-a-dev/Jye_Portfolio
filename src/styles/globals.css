@@ -104,19 +104,21 @@
   box-shadow: 4px 4px 0px #1a1614;
 }
 
-/* Dấu mộc đỏ cao su hành chính thời chiến */
+/* Dấu mộc hành chính thời chiến */
 .stamp-seal {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 2.5px double #a83c27;
-  color: #a83c27;
+  border: 2.5px double #facc15;
+  color: #facc15;
+  background-color: rgba(26, 22, 20, 0.55);
   font-family: var(--font-mono, monospace);
   font-weight: 800;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   transform: rotate(-15deg);
-  padding: 0.2rem 0.6rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
   user-select: none;
 }
 
