@@ -2,9 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { getAllSectionSlugs, getDocument } from "@/lib/markdown";
-import { NeonLink } from "@/components/mdx/NeonLink";
-import { FramedImage } from "@/components/mdx/FramedImage";
-import { CinematicVideo } from "@/components/mdx/CinematicVideo";
+import { mdxComponents } from "@/components/mdx/MdxRenderer";
 import { PageBackground } from "@/components/shared/PageBackground";
 
 type PageProps = {
@@ -14,10 +12,6 @@ type PageProps = {
   }>;
 };
 
-/**
- * Static Site Generation (SSG) với Dynamic Routes trong App Router.
- * Quét toàn bộ nội dung từ thư mục content/ để render trước tại build-time.
- */
 export async function generateStaticParams() {
   return await getAllSectionSlugs();
 }
@@ -39,44 +33,6 @@ export async function generateMetadata({
     description: `Khám phá tư liệu ${doc.metadata.title ?? slug} trong chương mục ${section}.`,
   };
 }
-
-/**
- * Bảng ánh xạ linh kiện MDX tích hợp các thành phần điện ảnh Neon Noir.
- * Thay thế trực tiếp các thẻ HTML chuẩn bằng các component đồ họa cao cấp.
- */
-const mdxComponents = {
-  // Thay thế thẻ <a> mặc định
-  a: ({ href, children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
-    <NeonLink href={href || "#"} {...props}>
-      {children}
-    </NeonLink>
-  ),
-  // Thay thế thẻ <img> mặc định
-  img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    <FramedImage
-      src={typeof props.src === "string" ? props.src : ""}
-      alt={props.alt}
-      caption={props.title}
-    />
-  ),
-  // Các thẻ custom trực tiếp trong file .md/.mdx
-  NeonLink,
-  FramedImage,
-  CinematicVideo,
-  Video: CinematicVideo,
-  Audio: (props: { src?: string; title?: string }) => (
-    <div className="my-6 flex items-center justify-between rounded border border-zinc-800/80 bg-zinc-950/70 p-4 font-mono text-xs text-zinc-300">
-      <div className="flex items-center gap-3">
-        <span className="relative flex h-2 w-2">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-75" />
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-500" />
-        </span>
-        <span className="font-semibold text-zinc-200">{props.title || "Cassette Track"}</span>
-      </div>
-      <span className="text-zinc-500">{props.src}</span>
-    </div>
-  ),
-};
 
 export default async function DocumentDetailPage({ params }: PageProps) {
   const { section, slug } = await params;

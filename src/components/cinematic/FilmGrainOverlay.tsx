@@ -9,10 +9,12 @@ export function FilmGrainOverlay() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-50 h-screen w-screen select-none bg-repeat opacity-[0.04] mix-blend-overlay"
+      className="pointer-events-none fixed inset-0 z-50 h-screen w-screen select-none bg-repeat opacity-[0.04] mix-blend-overlay gpu-layer"
       style={{
         backgroundImage: "url('/noise.png')",
         backgroundRepeat: "repeat",
+        contain: "strict",
+        transform: "translate3d(0, 0, 0)",
       }}
     />
   );

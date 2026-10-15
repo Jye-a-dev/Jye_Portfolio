@@ -53,9 +53,11 @@ export function PageBackground({ background }: PageBackgroundProps) {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 -z-20 h-screen w-screen overflow-hidden select-none"
+      className="pointer-events-none fixed inset-0 -z-20 h-screen w-screen overflow-hidden select-none gpu-layer"
       style={{
         backgroundColor: bgColor && !bgColor.startsWith("bg-") ? bgColor : undefined,
+        contain: "strict",
+        transform: "translate3d(0, 0, 0)",
       }}
     >
       {/* Lớp hiển thị ảnh nền toàn trang */}

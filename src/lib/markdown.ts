@@ -47,9 +47,30 @@ export async function getSlugsBySection(section: string): Promise<string[]> {
   try {
     const sectionDir = path.join(CONTENT_PATH, section);
     const files = await fs.readdir(sectionDir);
-    return files
-      .filter((file) => file.endsWith(".md") || file.endsWith(".mdx"))
-      .map((file) => file.replace(/\.(md|mdx)$/, ""));
+    const mdFiles = files.filter(
+      (file) => file.endsWith(".md") || file.endsWith(".mdx")
+    );
+    const slugSet = new Set<string>();
+
+    await Promise.all(
+      mdFiles.map(async (file) => {
+        const fileSlug = file.replace(/\.(md|mdx)$/, "");
+        slugSet.add(fileSlug);
+
+        try {
+          const filePath = path.join(sectionDir, file);
+          const rawContent = await fs.readFile(filePath, "utf-8");
+          const { data } = matter(rawContent);
+          if (data.slug && typeof data.slug === "string") {
+            slugSet.add(data.slug);
+          }
+        } catch {
+          // ignore individual read/parse error
+        }
+      })
+    );
+
+    return Array.from(slugSet);
   } catch {
     return [];
   }
@@ -104,7 +125,9 @@ export async function getDocument(
   try {
     const extensions = [".md", ".mdx"];
     let rawContent: string | null = null;
+    let resolvedSlug = slug;
 
+    // 1. Thử đọc trực tiếp từ tên file khớp chính xác với slug
     for (const ext of extensions) {
       const filePath = path.join(CONTENT_PATH, section, `${slug}${ext}`);
       try {
@@ -112,6 +135,38 @@ export async function getDocument(
         break;
       } catch {
         // Thử extension tiếp theo nếu không tìm thấy file
+      }
+    }
+
+    // 2. Nếu không tìm thấy, quét thư mục section để tìm file có frontmatter slug khớp
+    // hoặc tên file khớp không phân biệt chữ hoa/thường hay dấu gạch ngang
+    if (rawContent === null) {
+      const sectionDir = path.join(CONTENT_PATH, section);
+      const files = await fs.readdir(sectionDir);
+      const normalizedQuerySlug = slug.toLowerCase().replace(/[-_]/g, "");
+
+      for (const file of files) {
+        if (!file.endsWith(".md") && !file.endsWith(".mdx")) continue;
+        const filePath = path.join(sectionDir, file);
+        try {
+          const candidateContent = await fs.readFile(filePath, "utf-8");
+          const { data } = matter(candidateContent);
+          const metaSlug = typeof data.slug === "string" ? data.slug : null;
+          const fileNameNoExt = file.replace(/\.(md|mdx)$/, "");
+
+          if (
+            metaSlug === slug ||
+            metaSlug?.toLowerCase() === slug.toLowerCase() ||
+            fileNameNoExt.toLowerCase() === slug.toLowerCase() ||
+            fileNameNoExt.toLowerCase().replace(/[-_]/g, "") === normalizedQuerySlug
+          ) {
+            rawContent = candidateContent;
+            resolvedSlug = metaSlug || fileNameNoExt;
+            break;
+          }
+        } catch {
+          // Bỏ qua lỗi đọc file cá nhân
+        }
       }
     }
 
@@ -124,11 +179,11 @@ export async function getDocument(
     return {
       metadata: {
         ...data,
-        slug: (data.slug as string) || slug,
+        slug: (data.slug as string) || resolvedSlug,
         section,
       } as DocumentMetadata,
       content,
-      slug,
+      slug: (data.slug as string) || resolvedSlug,
       section,
     };
   } catch {

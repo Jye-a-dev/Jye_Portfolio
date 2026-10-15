@@ -193,7 +193,29 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto !important;
+}
+
+/* Đồng bộ trình điều phối cuộn Lenis cho tần số quét cao 90Hz - 144Hz */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
 }
 
 body {
@@ -204,6 +226,13 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Khử giật khung hình và tối ưu hóa Render Layer độc lập trên GPU */
+.gpu-layer {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 /* ========================================================
