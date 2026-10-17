@@ -13,6 +13,7 @@ export function ProjectCatalogClient({ projects }: ProjectCatalogClientProps) {
   const [timeSort, setTimeSort] = useState<"newest" | "oldest">("newest");
   const [selectedSeal, setSelectedSeal] = useState("all");
   const [selectedTag, setSelectedTag] = useState("all");
+  const [projectType, setProjectType] = useState<"all" | "1" | "2">("all");
 
   // Thu thập danh sách các con dấu mộc (stamp_seal) duy nhất từ dữ liệu markdown
   const uniqueSeals = useMemo(() => {
@@ -40,7 +41,7 @@ export function ProjectCatalogClient({ projects }: ProjectCatalogClientProps) {
     return Array.from(tags);
   }, [projects]);
 
-  // Lọc và sắp xếp kết quả kết hợp: tên + con dấu + thẻ tags + niên khóa
+  // Lọc và sắp xếp kết quả kết hợp: tên + con dấu + thẻ tags + niên khóa + phân loại (1/2)
   const filteredProjects = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
@@ -64,7 +65,11 @@ export function ProjectCatalogClient({ projects }: ProjectCatalogClientProps) {
       const matchesTag =
         selectedTag === "all" || itemTags.includes(selectedTag);
 
-      return matchesSearch && matchesSeal && matchesTag;
+      const itemProjectType = String(item.Project ?? item.project ?? "1");
+      const matchesProjectType =
+        projectType === "all" || itemProjectType === projectType;
+
+      return matchesSearch && matchesSeal && matchesTag && matchesProjectType;
     });
 
     return filtered.sort((a, b) => {
@@ -72,7 +77,7 @@ export function ProjectCatalogClient({ projects }: ProjectCatalogClientProps) {
       const timeB = b.date ? new Date(b.date).getTime() : 0;
       return timeSort === "newest" ? timeB - timeA : timeA - timeB;
     });
-  }, [projects, searchQuery, timeSort, selectedSeal, selectedTag]);
+  }, [projects, searchQuery, timeSort, selectedSeal, selectedTag, projectType]);
 
   // Chia danh sách dự án thành các cuộn phim 35mm xếp tầng (Contact Strip Negative Sleeves)
   const filmStrips = useMemo(() => {
@@ -88,6 +93,7 @@ export function ProjectCatalogClient({ projects }: ProjectCatalogClientProps) {
     searchQuery.trim().length > 0 ||
     selectedSeal !== "all" ||
     selectedTag !== "all" ||
+    projectType !== "all" ||
     timeSort !== "newest";
 
   const handleResetFilters = () => {
@@ -95,6 +101,7 @@ export function ProjectCatalogClient({ projects }: ProjectCatalogClientProps) {
     setTimeSort("newest");
     setSelectedSeal("all");
     setSelectedTag("all");
+    setProjectType("all");
   };
 
   return (
@@ -157,6 +164,24 @@ export function ProjectCatalogClient({ projects }: ProjectCatalogClientProps) {
                   DẤU MỘC: {seal.toUpperCase()}
                 </option>
               ))}
+            </select>
+            <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center font-typewriter font-mono text-[10px] text-[#8c734e]">
+              ▼
+            </span>
+          </div>
+
+          <div className="relative min-w-52.5">
+            <select
+              value={projectType}
+              onChange={(e) =>
+                setProjectType(e.target.value as "all" | "1" | "2")
+              }
+              aria-label="Lọc theo phân loại dự án"
+              className="w-full appearance-none rounded-xs border-2 border-[#44382c] bg-baocap-sepia px-3.5 py-2.5 pr-8 font-typewriter font-mono text-xs font-bold tracking-wider text-baocap-yellow uppercase transition-colors focus:border-baocap-yellow focus:outline-none"
+            >
+              <option value="all">PHÂN LOẠI: TẤT CẢ</option>
+              <option value="1">LOẠI 1: DỰ ÁN TIÊU BIỂU</option>
+              <option value="2">LOẠI 2: MINI PROJECT</option>
             </select>
             <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center font-typewriter font-mono text-[10px] text-[#8c734e]">
               ▼

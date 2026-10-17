@@ -5,6 +5,7 @@ city: "saigon"
 neon_accent: "#00E5FF"
 detail: "Hệ thống AI hỗ trợ chẩn đoán hình ảnh X-quang Răng – Hàm – Mặt & đạt Giải Ba VLU MedTech 2025."
 poster: "/media/images/projects/MedtechVLU.jpg"
+Project: 1
 date: "2025-10-12"
 tags: ["Next.js", "TypeScript", "Tailwind", "AI Integration", "MedTech", "Frontend"]
 dispatch_code: "HỒ SƠ: SG-2025/MED"
@@ -51,5 +52,4 @@ Dự án hướng tới việc trở thành một công cụ hỗ trợ ra quy�
 
 ---
 
-[Xem chi tiết mã nguồn dự án](https://github.com)
-[Quay lại danh mục dự án](/projects)
+[- GitHub](https://github.com)

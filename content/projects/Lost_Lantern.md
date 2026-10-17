@@ -5,6 +5,7 @@ city: "saigon"
 neon_accent: "#FF8C00"
 detail: "Web3 Roguelike Horror Game trên mạng Sui Blockchain • Đạt Giải Ba SUI Hackathon."
 poster: "/media/images/projects/SuiHackathon.jpg"
+Project: 1
 date: "2026-03-20"
 tags: ["Next.js", "Web3 Game", "Sui Move", "zkLogin", "Roguelike"]
 dispatch_code: "HỒ SƠ: SUI-HACKATHON/GAME"
@@ -44,7 +45,20 @@ Dù phần gameplay vẫn đang tiếp tục hoàn thiện, dự án đã đánh
 * Nâng tầm tư duy lập trình giao diện (Frontend Craft), xử lý hiệu năng hiển thị và tối ưu hóa luồng tương tác Web3.
 * Tích lũy kinh nghiệm quý báu về thiết kế trải nghiệm người dùng trong môi trường áp lực cao của các kỳ thi công nghệ.
 
+
+<div class="my-6 relative border-2 border-[#2e3328] bg-[#0b0d0a] p-2 rounded-sm shadow-[0_4px_20px_rgba(0,0,0,0.8)]">
+  <div class="overflow-hidden relative rounded-xs">
+    <img 
+      src="/media/images/projects/SuiHackathon1.jpg" 
+      alt="Mô tả hình ảnh" 
+      class="w-full h-auto object-cover filter contrast-[1.05] sepia-[0.15] transition-transform duration-500 hover:scale-[1.02]"
+    />
+  </div>
+  <p class="mt-2 text-center text-xs font-mono text-[#a8b399] tracking-wide">
+    // TƯ LIỆU: Chú thích bức ảnh
+  </p>
+</div>
+
 ---
 
-[Xem mã nguồn trên GitHub](https://github.com)
-[Quay lại danh mục dự án](/projects)
+[- GitHub](https://github.com)

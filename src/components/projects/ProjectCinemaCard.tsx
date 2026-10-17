@@ -46,7 +46,7 @@ export function ProjectCinemaCard({ project, frameIndex }: ProjectCinemaCardProp
     >
       {/* Chỉ số frame phim 35mm trên đỉnh card */}
       <div className="flex items-center justify-between border-b border-[#2a241f] bg-[#0d0c0b] px-3 py-1 font-typewriter font-mono text-[9px] font-bold tracking-widest text-[#8c734e]/90 select-none">
-        <span>TX 5063</span>
+        <span>{project.Project === 2 || project.project === 2 ? "MINI • 16MM" : "TX 5063 • 35MM"}</span>
         <span>FRAME #{frameNumber.toString().padStart(2, "0")} • ▶ {frameNumber}A</span>
       </div>
 

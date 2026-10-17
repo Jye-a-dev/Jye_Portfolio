@@ -28,6 +28,9 @@ export interface DocumentMetadata {
   banner?: string;
   description?: string;
   section?: string;
+  poster?: string;
+  Project?: 1 | 2 | number;
+  project?: 1 | 2 | number;
   [key: string]: unknown;
 }
 
