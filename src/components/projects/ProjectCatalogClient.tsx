@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useTransition, useDeferredValue } from "react";
 import type { DocumentMetadata } from "@/lib/markdown";
 import { ProjectFilmStrip } from "./ProjectFilmStrip";
 
@@ -8,12 +8,19 @@ export interface ProjectCatalogClientProps {
   projects: DocumentMetadata[];
 }
 
+const DEFAULT_VISIBLE_TAGS = 10;
+
 export function ProjectCatalogClient({ projects }: ProjectCatalogClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [timeSort, setTimeSort] = useState<"newest" | "oldest">("newest");
+  const deferredSearchQuery = useDeferredValue(searchQuery);
+  const [isPending, startTransition] = useTransition();
+
+  // Mặc định sắp xếp theo bảng chữ cái A-Z (abc) theo yêu cầu
+  const [sortBy, setSortBy] = useState<"abc" | "newest" | "oldest">("abc");
   const [selectedSeal, setSelectedSeal] = useState("all");
   const [selectedTag, setSelectedTag] = useState("all");
   const [projectType, setProjectType] = useState<"all" | "1" | "2">("all");
+  const [isExpandedTags, setIsExpandedTags] = useState(false);
 
   // Thu thập danh sách các con dấu mộc (stamp_seal) duy nhất từ dữ liệu markdown
   const uniqueSeals = useMemo(() => {
@@ -26,24 +33,40 @@ export function ProjectCatalogClient({ projects }: ProjectCatalogClientProps) {
     return Array.from(seals);
   }, [projects]);
 
-  // Thu thập toàn bộ thẻ công nghệ (tags) duy nhất từ dữ liệu markdown
-  const uniqueTags = useMemo(() => {
-    const tags = new Set<string>();
+  // Thống kê tần suất và sắp xếp các thẻ (tags) theo mức độ xuất hiện giảm dần
+  const sortedTags = useMemo(() => {
+    const counts = new Map<string, number>();
     projects.forEach((item) => {
       if (Array.isArray(item.tags)) {
         item.tags.forEach((tag) => {
           if (typeof tag === "string" && tag.trim()) {
-            tags.add(tag.trim());
+            const cleanTag = tag.trim();
+            counts.set(cleanTag, (counts.get(cleanTag) || 0) + 1);
           }
         });
       }
     });
-    return Array.from(tags);
+    return Array.from(counts.keys()).sort(
+      (a, b) => (counts.get(b) || 0) - (counts.get(a) || 0)
+    );
   }, [projects]);
 
-  // Lọc và sắp xếp kết quả kết hợp: tên + con dấu + thẻ tags + niên khóa + phân loại (1/2)
+  // Giới hạn số lượng thẻ hiển thị: mặc định chỉ lấy top tags, tự động giữ tag đang chọn nếu nằm ngoài top
+  const visibleTags = useMemo(() => {
+    if (isExpandedTags) return sortedTags;
+
+    const top = sortedTags.slice(0, DEFAULT_VISIBLE_TAGS);
+    if (selectedTag !== "all" && !top.includes(selectedTag)) {
+      return [...top, selectedTag];
+    }
+    return top;
+  }, [sortedTags, isExpandedTags, selectedTag]);
+
+  const hiddenTagsCount = sortedTags.length - visibleTags.length;
+
+  // Lọc và sắp xếp kết quả kết hợp: tên + con dấu + thẻ tags + phân loại (1/2) + tiêu chí sắp xếp (A-Z/Mới/Cũ)
   const filteredProjects = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
+    const query = deferredSearchQuery.trim().toLowerCase();
 
     const filtered = projects.filter((item) => {
       const titleMatch = (item.title || "").toLowerCase().includes(query);
@@ -73,15 +96,27 @@ export function ProjectCatalogClient({ projects }: ProjectCatalogClientProps) {
     });
 
     return filtered.sort((a, b) => {
+      if (sortBy === "abc") {
+        const titleA = (a.title || a.slug || "").trim();
+        const titleB = (b.title || b.slug || "").trim();
+        return titleA.localeCompare(titleB, "vi", { sensitivity: "base" });
+      }
       const timeA = a.date ? new Date(a.date).getTime() : 0;
       const timeB = b.date ? new Date(b.date).getTime() : 0;
-      return timeSort === "newest" ? timeB - timeA : timeA - timeB;
+      return sortBy === "newest" ? timeB - timeA : timeA - timeB;
     });
-  }, [projects, searchQuery, timeSort, selectedSeal, selectedTag, projectType]);
+  }, [
+    projects,
+    deferredSearchQuery,
+    sortBy,
+    selectedSeal,
+    selectedTag,
+    projectType,
+  ]);
 
-  // Chia danh sách dự án thành các cuộn phim 35mm xếp tầng (Contact Strip Negative Sleeves)
+  // Chia danh sách dự án thành các cuộn phim 35mm xếp tầng (1 cuộn / 1 line = 5 khung hình)
   const filmStrips = useMemo(() => {
-    const framesPerStrip = 4;
+    const framesPerStrip = 5;
     const strips: DocumentMetadata[][] = [];
     for (let i = 0; i < filteredProjects.length; i += framesPerStrip) {
       strips.push(filteredProjects.slice(i, i + framesPerStrip));
@@ -94,14 +129,41 @@ export function ProjectCatalogClient({ projects }: ProjectCatalogClientProps) {
     selectedSeal !== "all" ||
     selectedTag !== "all" ||
     projectType !== "all" ||
-    timeSort !== "newest";
+    sortBy !== "abc";
+
+  const handleSelectTag = (tag: string) => {
+    startTransition(() => {
+      setSelectedTag(tag);
+    });
+  };
+
+  const handleSelectSeal = (seal: string) => {
+    startTransition(() => {
+      setSelectedSeal(seal);
+    });
+  };
+
+  const handleSortChange = (sort: "abc" | "newest" | "oldest") => {
+    startTransition(() => {
+      setSortBy(sort);
+    });
+  };
+
+  const handleProjectType = (type: "all" | "1" | "2") => {
+    startTransition(() => {
+      setProjectType(type);
+    });
+  };
 
   const handleResetFilters = () => {
     setSearchQuery("");
-    setTimeSort("newest");
-    setSelectedSeal("all");
-    setSelectedTag("all");
-    setProjectType("all");
+    startTransition(() => {
+      setSortBy("abc");
+      setSelectedSeal("all");
+      setSelectedTag("all");
+      setProjectType("all");
+      setIsExpandedTags(false);
+    });
   };
 
   return (
@@ -110,7 +172,7 @@ export function ProjectCatalogClient({ projects }: ProjectCatalogClientProps) {
           CỤM ĐIỀU KHIỂN TRA CỨU HỒ SƠ (Search & Filter Terminal)
          ======================================================== */}
       <div className="mb-10 space-y-4 rounded-xs border-2 border-[#3d342d] bg-[#141210]/95 p-5 shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
-        {/* Hàng 1: Ô tìm kiếm tên dự án + Dropdown Thời gian + Dropdown Con dấu */}
+        {/* Hàng 1: Ô tìm kiếm tên dự án + Dropdown Sắp xếp ABC + Dropdown Con dấu + Phân loại */}
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
           <div className="relative flex-1">
             <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center font-typewriter font-mono text-xs text-[#8c734e]">
@@ -136,13 +198,14 @@ export function ProjectCatalogClient({ projects }: ProjectCatalogClientProps) {
 
           <div className="relative min-w-52.5">
             <select
-              value={timeSort}
+              value={sortBy}
               onChange={(e) =>
-                setTimeSort(e.target.value as "newest" | "oldest")
+                handleSortChange(e.target.value as "abc" | "newest" | "oldest")
               }
-              aria-label="Sắp xếp theo thời gian"
+              aria-label="Sắp xếp danh mục dự án"
               className="w-full appearance-none rounded-xs border-2 border-[#44382c] bg-baocap-sepia px-3.5 py-2.5 pr-8 font-typewriter font-mono text-xs font-bold tracking-wider text-baocap-yellow uppercase transition-colors focus:border-baocap-yellow focus:outline-none"
             >
+              <option value="abc">SẮP XẾP: A → Z (ABC)</option>
               <option value="newest">NIÊN KHÓA: MỚI NHẤT ↓</option>
               <option value="oldest">NIÊN KHÓA: CŨ NHẤT ↑</option>
             </select>
@@ -154,7 +217,7 @@ export function ProjectCatalogClient({ projects }: ProjectCatalogClientProps) {
           <div className="relative min-w-52.5">
             <select
               value={selectedSeal}
-              onChange={(e) => setSelectedSeal(e.target.value)}
+              onChange={(e) => handleSelectSeal(e.target.value)}
               aria-label="Lọc theo con dấu mộc"
               className="w-full appearance-none rounded-xs border-2 border-[#44382c] bg-baocap-sepia px-3.5 py-2.5 pr-8 font-typewriter font-mono text-xs font-bold tracking-wider text-[#d94f3d] uppercase transition-colors focus:border-[#d94f3d] focus:outline-none"
             >
@@ -174,7 +237,7 @@ export function ProjectCatalogClient({ projects }: ProjectCatalogClientProps) {
             <select
               value={projectType}
               onChange={(e) =>
-                setProjectType(e.target.value as "all" | "1" | "2")
+                handleProjectType(e.target.value as "all" | "1" | "2")
               }
               aria-label="Lọc theo phân loại dự án"
               className="w-full appearance-none rounded-xs border-2 border-[#44382c] bg-baocap-sepia px-3.5 py-2.5 pr-8 font-typewriter font-mono text-xs font-bold tracking-wider text-baocap-yellow uppercase transition-colors focus:border-baocap-yellow focus:outline-none"
@@ -197,26 +260,26 @@ export function ProjectCatalogClient({ projects }: ProjectCatalogClientProps) {
 
           <button
             type="button"
-            onClick={() => setSelectedTag("all")}
+            onClick={() => handleSelectTag("all")}
             className={`cursor-pointer rounded-xs px-2.5 py-1 font-typewriter font-mono text-[11px] font-bold tracking-wide uppercase transition-[background-color,border-color,color] duration-150 ${
               selectedTag === "all"
-                ? "border-2 border-baocap-yellow bg-baocap-yellow text-baocap-ink"
+                ? "border-2 border-baocap-yellow bg-baocap-yellow text-baocap-ink shadow-[0_0_10px_rgba(216,177,93,0.3)]"
                 : "border border-dashed border-[#44382c] bg-baocap-sepia text-[#a39274] hover:border-[#8c734e] hover:text-[#f4ede2]"
             }`}
           >
             #TẤT CẢ
           </button>
 
-          {uniqueTags.map((tag) => {
+          {visibleTags.map((tag) => {
             const isSelected = selectedTag === tag;
             return (
               <button
                 key={tag}
                 type="button"
-                onClick={() => setSelectedTag(tag)}
+                onClick={() => handleSelectTag(tag)}
                 className={`cursor-pointer rounded-xs px-2.5 py-1 font-typewriter font-mono text-[11px] font-medium tracking-wide uppercase transition-[background-color,border-color,color] duration-150 ${
                   isSelected
-                    ? "border-2 border-baocap-yellow bg-baocap-yellow text-baocap-ink"
+                    ? "border-2 border-baocap-yellow bg-baocap-yellow font-bold text-baocap-ink shadow-[0_0_10px_rgba(216,177,93,0.3)]"
                     : "border border-dashed border-[#44382c] bg-baocap-sepia text-[#a39274] hover:border-[#8c734e] hover:text-[#f4ede2]"
                 }`}
               >
@@ -224,6 +287,19 @@ export function ProjectCatalogClient({ projects }: ProjectCatalogClientProps) {
               </button>
             );
           })}
+
+          {sortedTags.length > DEFAULT_VISIBLE_TAGS && (
+            <button
+              type="button"
+              onClick={() => setIsExpandedTags((prev) => !prev)}
+              aria-label={isExpandedTags ? "Thu gọn danh sách thẻ" : "Hiển thị thêm thẻ công nghệ"}
+              className="cursor-pointer rounded-xs border border-dotted border-[#8c734e]/80 bg-[#1a1614] px-2.5 py-1 font-typewriter font-mono text-[10px] font-bold tracking-wide text-baocap-yellow transition-[border-color,background-color,color] duration-150 hover:border-baocap-yellow hover:bg-baocap-sepia hover:text-white"
+            >
+              {isExpandedTags
+                ? "[ − THU GỌN ]"
+                : `[ + ${hiddenTagsCount > 0 ? hiddenTagsCount : sortedTags.length - DEFAULT_VISIBLE_TAGS} THẺ ]`}
+            </button>
+          )}
         </div>
 
         {/* Hàng 3: Chỉ số hồ sơ hiển thị và nút xóa bộ lọc */}
@@ -249,13 +325,17 @@ export function ProjectCatalogClient({ projects }: ProjectCatalogClientProps) {
       </div>
 
       {/* ========================================================
-          CÁC CUỘN PHIM 35MM XẾP TẦNG (Cinematic 35mm Film Strips)
+          CÁC CUỘN PHIM 35MM XẾP TẦNG (1 LINE = 5 KHUNG HÌNH)
          ======================================================== */}
       {filmStrips.length > 0 ? (
-        <div className="space-y-8">
+        <div
+          className={`space-y-8 transition-opacity duration-200 ${
+            isPending ? "pointer-events-none opacity-60" : "opacity-100"
+          }`}
+        >
           {filmStrips.map((strip, index) => (
             <ProjectFilmStrip
-              key={index}
+              key={strip[0]?.slug ?? index}
               stripIndex={index}
               projects={strip}
             />

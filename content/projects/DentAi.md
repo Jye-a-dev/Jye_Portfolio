@@ -9,7 +9,7 @@ Project: 1
 date: "2025-10-12"
 tags: ["Next.js", "TypeScript", "Tailwind", "AI Integration", "MedTech", "Frontend"]
 dispatch_code: "HỒ SƠ: SG-2025/MED"
-stamp_seal: "GIẢI BA VLU"
+stamp_seal: "GIẢI BA"
 brief: "Giải pháp ứng dụng AI tối ưu hóa quá trình đọc phim X-quang nha khoa, phát hiện dấu hiệu bất thường và hỗ trợ bác sĩ chẩn đoán chuẩn xác."
 ---
 

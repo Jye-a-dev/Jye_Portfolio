@@ -1,14 +1,63 @@
 "use client";
 
-import React from "react";
+import React, { memo } from "react";
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Disc3 } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
+
+/**
+ * Tách biệt bộ bánh răng quay và chỉ báo băng từ thành component con cục bộ.
+ * Chỉ nhận boolean isPlaying, cô lập triệt để re-render khỏi layout cha.
+ */
+interface CassetteTapeWheelsProps {
+  isPlaying: boolean;
+  stage?: string;
+}
+
+const CassetteTapeWheels = memo(function CassetteTapeWheels({
+  isPlaying,
+  stage,
+}: CassetteTapeWheelsProps) {
+  return (
+    <div className="relative mb-3 flex items-center justify-between rounded border border-zinc-900 bg-zinc-900/60 px-3 py-2">
+      {/* Trục quay trái */}
+      <div
+        className={`flex h-7 w-7 items-center justify-center rounded-full border border-zinc-800 bg-zinc-950 text-zinc-500 shadow-inner will-change-transform transform-gpu ${
+          isPlaying ? "animate-[spin_3s_linear_infinite]" : ""
+        }`}
+      >
+        <Disc3 className="h-4 w-4 text-zinc-400" />
+      </div>
+
+      {/* Cửa sổ nhìn dải băng từ */}
+      <div className="flex flex-col items-center justify-center px-2">
+        <div className="flex items-center gap-1.5 font-mono text-[9px] tracking-widest text-zinc-400 uppercase">
+          <span
+            className={`h-1.5 w-1.5 rounded-full ${
+              isPlaying ? "animate-ping bg-rose-500" : "bg-zinc-600"
+            }`}
+          />
+          <span>{stage ? stage.toUpperCase() : "MAGNETIC"} TAPE</span>
+        </div>
+        <span className="font-mono text-[8px] text-zinc-600">MAGNETIC C-90</span>
+      </div>
+
+      {/* Trục quay phải */}
+      <div
+        className={`flex h-7 w-7 items-center justify-center rounded-full border border-zinc-800 bg-zinc-950 text-zinc-500 shadow-inner will-change-transform transform-gpu ${
+          isPlaying ? "animate-[spin_3s_linear_infinite]" : ""
+        }`}
+      >
+        <Disc3 className="h-4 w-4 text-zinc-400" />
+      </div>
+    </div>
+  );
+});
 
 /**
  * Trình phát nhạc Cassette cố định góc dưới màn hình (Sticky Cassette Widget).
  * Tái hiện hộp băng từ Analog cổ điển với bánh răng xoay, đèn LED neon chỉ báo trạng thái.
  */
-export function StickyCassettePlayer() {
+export const StickyCassettePlayer = memo(function StickyCassettePlayer() {
   const {
     currentTrack,
     isPlaying,
@@ -24,41 +73,10 @@ export function StickyCassettePlayer() {
   return (
     <aside
       aria-label="Trình phát băng từ Neon Noir"
-      className="fixed bottom-4 right-4 z-40 w-80 max-w-[calc(100vw-2rem)] select-none rounded-lg border border-zinc-800/80 bg-zinc-950/90 p-3.5 shadow-[0_12px_40px_rgba(0,0,0,0.85)] backdrop-blur-md transition-all duration-300 sm:bottom-6 sm:right-6"
+      className="fixed bottom-4 right-4 z-40 w-80 max-w-[calc(100vw-2rem)] select-none rounded-lg border border-zinc-800/80 bg-zinc-950/95 p-3.5 shadow-[0_12px_40px_rgba(0,0,0,0.85)] transition-all duration-300 sm:bottom-6 sm:right-6"
     >
-      {/* Vỏ băng từ mặt trước với 2 trục quay bánh răng */}
-      <div className="relative mb-3 flex items-center justify-between rounded border border-zinc-900 bg-zinc-900/60 px-3 py-2">
-        {/* Trục quay trái */}
-        <div
-          className={`flex h-7 w-7 items-center justify-center rounded-full border border-zinc-800 bg-zinc-950 text-zinc-500 shadow-inner ${
-            isPlaying ? "animate-[spin_3s_linear_infinite]" : ""
-          }`}
-        >
-          <Disc3 className="h-4 w-4 text-zinc-400" />
-        </div>
-
-        {/* Cửa sổ nhìn dải băng từ */}
-        <div className="flex flex-col items-center justify-center px-2">
-          <div className="flex items-center gap-1.5 font-mono text-[9px] tracking-widest text-zinc-400 uppercase">
-            <span
-              className={`h-1.5 w-1.5 rounded-full ${
-                isPlaying ? "animate-ping bg-rose-500" : "bg-zinc-600"
-              }`}
-            />
-            <span>{currentTrack?.stage ? currentTrack.stage.toUpperCase() : "MAGNETIC"} TAPE</span>
-          </div>
-          <span className="font-mono text-[8px] text-zinc-600">MAGNETIC C-90</span>
-        </div>
-
-        {/* Trục quay phải */}
-        <div
-          className={`flex h-7 w-7 items-center justify-center rounded-full border border-zinc-800 bg-zinc-950 text-zinc-500 shadow-inner ${
-            isPlaying ? "animate-[spin_3s_linear_infinite]" : ""
-          }`}
-        >
-          <Disc3 className="h-4 w-4 text-zinc-400" />
-        </div>
-      </div>
+      {/* Vỏ băng từ mặt trước với 2 trục quay bánh răng cô lập */}
+      <CassetteTapeWheels isPlaying={isPlaying} stage={currentTrack?.stage} />
 
       {/* Thông tin bài nhạc đang phát */}
       <div className="mb-3">
@@ -141,7 +159,7 @@ export function StickyCassettePlayer() {
       </div>
     </aside>
   );
-}
+});
 
 export default StickyCassettePlayer;
 

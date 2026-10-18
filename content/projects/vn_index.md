@@ -45,9 +45,7 @@ Dự án tập trung vào việc làm chủ dòng dữ liệu tài chính biến
     alt="Giao diện theo dõi biến động chỉ số VN-Index và biểu đồ tài chính" 
     className="h-auto w-full max-w-[760px] rounded-xs object-cover" 
   />
-  <p className="mt-2.5 font-mono text-[13px] italic text-[#a8b399]">
-    // BẢN GHI: Trực quan hóa dữ liệu chỉ số thị trường chứng khoán theo thời gian thực
-  </p>
+  <p className="mt-2.5 font-mono text-[13px] italic text-[#a8b399]">// BẢN GHI: Trực quan hóa dữ liệu chỉ số thị trường chứng khoán theo thời gian thực</p>
 </div>
 
 ---

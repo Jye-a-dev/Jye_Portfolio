@@ -47,9 +47,7 @@ Trong thời đại số hóa, các hệ thống bán vé sự kiện, chứng c
     alt="Đội ngũ nhận giải Ba tại vòng loại UniHackfest Unitour - Trường Đại học Văn Lang" 
     className="h-auto w-full max-w-[760px] rounded-xs object-cover" 
   />
-  <p className="mt-2.5 font-mono text-[13px] italic text-[#a8b399]">
-    [Hồ sơ 01]: Giải Ba (Third Prize / 3rd Place) Vòng loại cơ sở UniHackfest Unitour x Trường Đại học Văn Lang (School of Technology).
-  </p>
+  <p className="mt-2.5 font-mono text-[13px] italic text-[#a8b399]">[Hồ sơ 01]: Giải Ba (Third Prize / 3rd Place) Vòng loại cơ sở UniHackfest Unitour x Trường Đại học Văn Lang (School of Technology).</p>
 </div>
 
 <div className="my-6 flex flex-col items-center rounded-sm border-2 border-[#2e3328] bg-[#0b0d0a] p-2.5">
@@ -58,9 +56,7 @@ Trong thời đại số hóa, các hệ thống bán vé sự kiện, chứng c
     alt="Đội ngũ nhận giải thưởng Most Innovative Solution tại UniHackfest Final Demo Day" 
     className="h-auto w-full max-w-[760px] rounded-xs object-cover" 
   />
-  <p className="mt-2.5 font-mono text-[13px] italic text-[#a8b399]">
-    [Hồ sơ 02]: Vinh danh hạng mục giải thưởng đặc biệt "Most Innovative Solution" tại UniHackfest Final Demo Day (Sponsored by MEXC Ventures & Solana).
-  </p>
+  <p className="mt-2.5 font-mono text-[13px] italic text-[#a8b399]">[Hồ sơ 02]: Vinh danh hạng mục giải thưởng đặc biệt "Most Innovative Solution" tại UniHackfest Final Demo Day (Sponsored by MEXC Ventures & Solana).</p>
 </div>
 
 ---

@@ -56,11 +56,32 @@ export const mdxComponents = {
   ),
 
   // Đoạn văn & trích dẫn công văn
-  p: ({ children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => (
-    <p className="my-4 font-serif text-sm leading-relaxed text-[#dcd1be] sm:text-base" {...props}>
-      {children}
-    </p>
-  ),
+  p: ({ children, className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => {
+    // Ngăn chặn hydration error khi phần tử block lọt vào trong <p>
+    const hasBlock = React.Children.toArray(children).some(
+      (child) =>
+        React.isValidElement(child) &&
+        (typeof child.type === "string"
+          ? ["div", "figure", "p", "table", "ul", "ol", "pre", "blockquote", "h1", "h2", "h3", "h4", "h5", "h6", "hr"].includes(child.type)
+          : child.type === FramedImage ||
+            child.type === CinematicVideo ||
+            child.type === CassetteAudio)
+    );
+
+    if (hasBlock) {
+      return (
+        <div className={className || "my-4 font-serif text-sm leading-relaxed text-[#dcd1be] sm:text-base"} {...props}>
+          {children}
+        </div>
+      );
+    }
+
+    return (
+      <p className={className || "my-4 font-serif text-sm leading-relaxed text-[#dcd1be] sm:text-base"} {...props}>
+        {children}
+      </p>
+    );
+  },
   blockquote: ({ children, ...props }: React.HTMLAttributes<HTMLQuoteElement>) => (
     <blockquote
       className="my-6 border-l-4 border-baocap-yellow bg-[#1c1815]/80 p-4 font-serif text-sm italic text-[#c7b299] shadow-[2px_2px_0px_#000]"

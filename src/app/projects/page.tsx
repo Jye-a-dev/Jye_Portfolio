@@ -28,7 +28,7 @@ export default async function ProjectsPage() {
     >
       <PageBackground background={pageMeta?.background} />
 
-      <main className="mx-auto max-w-7xl">
+      <main className="mx-auto max-w-7xl 2xl:max-w-[1540px]">
         {/* ========================================================
             HEADER: BẢNG HIỆU HỘP ĐÈN RẠP CHIẾU BÓNG NEON NOIR
            ======================================================== */}
